@@ -1,0 +1,48 @@
+alloc(hook1,100)
+alloc(hook2, 100)
+alloc(format,4096)
+alloc(result,6000)
+label(returnhere1)
+label(returnhere2)
+label(not_deleted_msg)
+
+format:
+db '[Deleted] %s'
+
+hook2:
+mov [ebp-18], edi
+mov byte ptr [ebp-04], 02
+push [ebp-d0]
+push [ebp-24]
+call strcpy
+add esp,8
+jmp returnhere2
+
+KakaoTalk.exe+7cdf32:
+nop
+nop
+jmp hook2
+returnhere2:
+
+hook1:
+push edx
+mov edx, [edi+10]
+and edx, FFFFBFFF
+cmp edx, [edi+10]
+je not_deleted_msg
+mov [edi+10], edx
+push eax
+push format
+push result
+call sprintf
+add esp, C
+mov eax, result
+not_deleted_msg:
+pop edx
+mov ecx,eax
+lea esi,[edi+30]
+jmp returnhere1
+
+KakaoTalk.exe+832282:
+jmp hook1
+returnhere1:
